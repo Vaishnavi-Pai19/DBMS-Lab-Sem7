@@ -49,47 +49,25 @@ void printRelations () {
   }
 }
 
-void exercise2 () {
-  char targetRelation[] = "Students";
-  char targetAttribute[] = "Class";
-  int attrCatBlockNum = ATTRCAT_BLOCK;   // 5 initially
-
-  while (attrCatBlockNum != -1)
-  {
-    RecBuffer attrCatBuffer(attrCatBlockNum);
-    HeadInfo attrCatHeader;
-  
-    attrCatBuffer.getHeader(&attrCatHeader);
-    int attrCount = attrCatHeader.numEntries;
-
-    int currentBlockNum = attrCatBlockNum;     // Needed in case the attribute to be changed is not in the first Attribute Catalog block
-    attrCatBlockNum = attrCatHeader.rblock;    // If multiple blocks of attribute catalog, this won't be -1
-
-    for (int i = 0; i < attrCount; i++ )
-    {
-      Attribute attrCatRecord[ATTRCAT_NO_ATTRS];
-      attrCatBuffer.getRecord(attrCatRecord, i);
-      if (strcmp(attrCatRecord[ATTRCAT_REL_NAME_INDEX].sVal, targetRelation) == 0)
-      {
-        if (strcmp(attrCatRecord[ATTRCAT_ATTR_NAME_INDEX].sVal, targetAttribute) == 0)
-        {
-          unsigned char buffer[BLOCK_SIZE];
-          Disk::readBlock(buffer, currentBlockNum);
-          int offset = 32 + 20 + 96*i + 16;          // HEADER_SIZE + slotMapSize + (recordSize * slotNum) + 16 for AttributeName
-
-          memcpy(buffer + offset, "Batch", 6);
-          Disk::writeBlock(buffer, currentBlockNum);
-
-          printRelations();
-        }
-      }
-    }
-  }
-}
-
 int main(int argc, char *argv[]) {
-  Disk disk_run;
-  printRelations();
-  // exercise2();
-  return 0;
+    Disk disk_run;
+    StaticBuffer buffer; 
+    OpenRelTable cache;
+    
+    for (int i = 0; i < 3; i++)
+    {
+        RelCatEntry relCatBuf;
+		RelCacheTable::getRelCatEntry(i, &relCatBuf);
+
+		printf("Relation: %s\n", relCatBuf.relName);
+        
+		for (int attr = 0; attr < relCatBuf.numAttrs; attr++) {
+			AttrCatEntry attribute;
+			AttrCacheTable::getAttrCatEntry(i, attr, &attribute);
+            printf("  %s: %s\n", attribute.attrName, attribute.attrType == NUMBER ? "NUM":"STR");
+        }
+    }
+
+    // printRelations();
+    return 0;
 }
