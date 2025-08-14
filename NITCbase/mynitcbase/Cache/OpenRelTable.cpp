@@ -2,6 +2,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <stdlib.h>
+#include <cstdio>
 
 OpenRelTable::OpenRelTable() {
 
@@ -39,14 +40,15 @@ OpenRelTable::OpenRelTable() {
 
     /**** 1.3) Setting up Students relation in the Relation Cache Table ****/
 
+    struct RelCacheEntry studentsCacheEntry;
     relCatBlock.getRecord(relCatRecord, 2);   
-    RelCacheTable::recordToRelCatEntry(relCatRecord, &relCacheEntry.relCatEntry);
-    relCacheEntry.recId.block = RELCAT_BLOCK;
-    relCacheEntry.recId.slot = 2;
+    RelCacheTable::recordToRelCatEntry(relCatRecord, &studentsCacheEntry.relCatEntry);
+    studentsCacheEntry.recId.block = RELCAT_BLOCK;
+    studentsCacheEntry.recId.slot = 2;
 
     // Allocating to heap
     RelCacheTable::relCache[ATTRCAT_RELID + 1] = (struct RelCacheEntry*)malloc(sizeof(RelCacheEntry));
-    *(RelCacheTable::relCache[ATTRCAT_RELID + 1]) = relCacheEntry;
+    *(RelCacheTable::relCache[ATTRCAT_RELID + 1]) = studentsCacheEntry;
 
 
     /******************* 2) ATTRIBUTE CACHE TABLE *********************/
@@ -98,7 +100,9 @@ OpenRelTable::OpenRelTable() {
     /**** 2.3) Setting up Students attributes in the Attribute Cache Table from ATTRCAT ****/
     attrCacheHead = nullptr;
     prev = nullptr;
-    for (int i = 12; i < 18; i++)               // Slots fafter ATTRCAT
+    int studentsNumAttrs = studentsCacheEntry.relCatEntry.numAttrs;
+
+    for (int i = 12; i < 12 + studentsNumAttrs; i++)               // Slots after ATTRCAT
     {
         attrCatBlock.getRecord(attrCatRecord, i);
 

@@ -57,14 +57,14 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i < 3; i++)
     {
         RelCatEntry relCatBuf;
-		RelCacheTable::getRelCatEntry(i, &relCatBuf);
+        RelCacheTable::getRelCatEntry(i, &relCatBuf);
 
-		printf("Relation: %s\n", relCatBuf.relName);
-        
-		for (int attr = 0; attr < relCatBuf.numAttrs; attr++) {
+        printf("\nRelation: %s\n", relCatBuf.relName);
+            
+        for (int attr = 0; attr < relCatBuf.numAttrs; attr++) {
 			AttrCatEntry attribute;
 			AttrCacheTable::getAttrCatEntry(i, attr, &attribute);
-            printf("  %s: %s\n", attribute.attrName, attribute.attrType == NUMBER ? "NUM":"STR");
+			printf("  %s: %s\n", attribute.attrName, attribute.attrType == NUMBER ? "NUM":"STR");
         }
     }
 
