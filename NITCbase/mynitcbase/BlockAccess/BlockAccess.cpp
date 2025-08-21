@@ -1,8 +1,9 @@
 #include "BlockAccess.h"
 #include <cstring>
 
+// SELECT * FROM RelName INTO TargetName WHERE Attribute op value;
 RecId BlockAccess::linearSearch(int relId, char attrName[ATTR_SIZE], union Attribute attrVal, int op) {
-    // get the previous search index of the relation relId from the relation cache
+    // Getting the previous search index of the relation relId from the relation cache
     RecId prevRecId;
     RelCacheTable::getSearchIndex(relId, &prevRecId);
     int block, slot;

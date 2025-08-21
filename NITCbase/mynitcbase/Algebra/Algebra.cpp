@@ -28,6 +28,7 @@ bool isNumber(char *str) {
 - op - the operator of the condition
 - strVal - the value that we want to compare against (represented as a string)
 */
+// SELECT * FROM srcRel INTO targetVal WHERE attr op strVal;
 int Algebra::select(char srcRel[ATTR_SIZE], char targetRel[ATTR_SIZE], char attr[ATTR_SIZE], int op, char strVal[ATTR_SIZE]) {
     int srcRelId = OpenRelTable::getRelId(srcRel);      // Implemented later
     if (srcRelId == E_RELNOTOPEN) {
