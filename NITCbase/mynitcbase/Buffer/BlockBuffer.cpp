@@ -46,6 +46,32 @@ int RecBuffer::getRecord(union Attribute *rec, int slotNum) {
     return SUCCESS;
 }
 
+int RecBuffer::setRecord(union Attribute *rec, int slotNum) {
+    unsigned char *bufferPtr;
+    int ret = loadBlockAndGetBufferPtr(&bufferPtr);
+    if (ret != SUCCESS)
+        return ret;
+
+    struct HeadInfo head;
+    this->getHeader(&head);
+
+    int numAttrs = head.numAttrs;
+    int numSlots = head.numSlots;
+    
+    if (slotNum < 0 || slotNum >= numSlots)
+    {
+        return E_OUTOFBOUND;
+    }
+
+    int recordSize = numAttrs*ATTR_SIZE;
+    unsigned char* recordPtr = bufferPtr + HEADER_SIZE + numSlots + slotNum*recordSize;
+
+    memcpy(recordPtr, rec, recordSize);
+    StaticBuffer::setDirtyBit(this->blockNum);
+
+    return SUCCESS;
+}
+
 int RecBuffer::getSlotMap(unsigned char *slotMap) {
     unsigned char *bufferPtr;
 
@@ -67,7 +93,18 @@ int RecBuffer::getSlotMap(unsigned char *slotMap) {
 int BlockBuffer::loadBlockAndGetBufferPtr(unsigned char **buffPtr) {
     int bufferNum = StaticBuffer::getBufferNum(this->blockNum);
 
-    if (bufferNum == E_BLOCKNOTINBUFFER) {
+    if (bufferNum != E_BLOCKNOTINBUFFER)            // If block present in buffer, updating timestamp for LRU
+    {
+        StaticBuffer::metainfo[bufferNum].timeStamp = 0;
+
+        for (int i = 0; i < BUFFER_CAPACITY && i != bufferNum; i++)
+        {
+            if (StaticBuffer::metainfo[i].free == 0)
+                StaticBuffer::metainfo[i].timeStamp += 1;
+        }  
+    } 
+    else                                          // If block not present in buffer
+    {                         
         bufferNum = StaticBuffer::getFreeBuffer(this->blockNum);
 
         if (bufferNum == E_OUTOFBOUND)
