@@ -1,9 +1,18 @@
 #include "StaticBuffer.h"
+#include <cstring>
 
 unsigned char StaticBuffer::blocks[BUFFER_CAPACITY][BLOCK_SIZE];
 struct BufferMetaInfo StaticBuffer::metainfo[BUFFER_CAPACITY];
+unsigned char StaticBuffer::blockAllocMap[DISK_BLOCKS];
 
 StaticBuffer::StaticBuffer() {
+    for (int bmap = 0; bmap < 4; bmap++) 
+    {
+        unsigned char buffer[BLOCK_SIZE];
+        Disk::readBlock(buffer, bmap);
+        memcpy(blockAllocMap + bmap*BLOCK_SIZE, buffer, BLOCK_SIZE);
+    }
+
     for (int bufferIndex = 0; bufferIndex < BUFFER_CAPACITY; bufferIndex++) 
     {
         metainfo[bufferIndex].free = true;
@@ -12,9 +21,15 @@ StaticBuffer::StaticBuffer() {
         metainfo[bufferIndex].blockNum = -1;
     }
 }
-        
-// Writing back all modified blocks on system exit
+
 StaticBuffer::~StaticBuffer() {
+    for (int bmap = 0; bmap < 4; bmap++) 
+    {
+        unsigned char buffer[BLOCK_SIZE];
+        memcpy(buffer, blockAllocMap + bmap*BLOCK_SIZE, BLOCK_SIZE);
+        Disk::writeBlock(buffer, bmap);
+    }
+
     for (int bufferIndex = 0; bufferIndex < BUFFER_CAPACITY; bufferIndex++) 
     {
         if (metainfo[bufferIndex].free == false && metainfo[bufferIndex].dirty == true)

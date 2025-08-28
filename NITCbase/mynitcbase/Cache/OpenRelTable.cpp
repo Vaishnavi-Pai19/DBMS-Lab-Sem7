@@ -211,13 +211,25 @@ int OpenRelTable::closeRel(int relId) {
     if (OpenRelTable::tableMetaInfo[relId].free)
         return E_RELNOTOPEN;
 
-    OpenRelTable::tableMetaInfo[relId].free = true;
+    if (RelCacheTable::relCache[relId]->dirty == true)
+    {
+        RelCatEntry relCatEntry = RelCacheTable::relCache[relId]->relCatEntry;
+        Attribute record[RELCAT_NO_ATTRS];
+        RelCacheTable::relCatEntryToRecord(&relCatEntry, record);
+
+        RecId recId = RelCacheTable::relCache[relId]->recId;
+        RecBuffer relCatBlock(recId.block);
+        relCatBlock.setRecord(record, recId.slot);
+    }
+
     free(RelCacheTable::relCache[relId]);
     for (AttrCacheEntry* entry = AttrCacheTable::attrCache[relId]; entry != nullptr; ) {
             AttrCacheEntry* nextEntry = entry->next;
             free(entry);
             entry = nextEntry;
         }
+
+    OpenRelTable::tableMetaInfo[relId].free = true;
 
     RelCacheTable::relCache[relId] = nullptr;
     AttrCacheTable::attrCache[relId] = nullptr;
