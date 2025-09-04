@@ -240,20 +240,45 @@ int OpenRelTable::closeRel(int relId) {
 OpenRelTable::~OpenRelTable() {
     for (int i = 2; i < MAX_OPEN; ++i) {          // Closing all the open relations for relId >= 2
         if (tableMetaInfo[i].free == false) {
-            OpenRelTable::closeRel(i);            // Implemented later
+            OpenRelTable::closeRel(i);            
         }
     }
 
-    for (int i = 0; i < MAX_OPEN; i++)
-    {
-        free(RelCacheTable::relCache[i]);
-        for (AttrCacheEntry* entry = AttrCacheTable::attrCache[i]; entry != nullptr; ) {
-            AttrCacheEntry* nextEntry = entry->next;
-            free(entry);
-            entry = nextEntry;
-        }
+    /**** Closing the catalog relations in the Relation Cache ****/
+    // 1) Releasing the Relation Cache Entry of Atttribute Catalog
 
-        RelCacheTable::relCache[i] = nullptr;
-        AttrCacheTable::attrCache[i] = nullptr;
+    if (RelCacheTable::relCache[ATTRCAT_RELID]->dirty) 
+    {
+        Attribute relCatRecord[RELCAT_NO_ATTRS];
+        RelCatEntry relCatEntry = RelCacheTable::relCache[ATTRCAT_RELID]->relCatEntry;
+        RelCacheTable::relCatEntryToRecord(&relCatEntry, relCatRecord);
+
+        RecId recId = RelCacheTable::relCache[ATTRCAT_RELID]->recId;
+        RecBuffer relCatBlock(recId.block);
+        relCatBlock.setRecord(relCatRecord, recId.slot);
+    }
+    free(RelCacheTable::relCache[ATTRCAT_RELID]);
+
+
+    // 2) Releasing the Relation Cache Entry of the Relation Catalog
+    if(RelCacheTable::relCache[RELCAT_RELID]->dirty) {
+        Attribute relCatRecord[RELCAT_NO_ATTRS];
+        RelCatEntry relCatEntry = RelCacheTable::relCache[ATTRCAT_RELID]->relCatEntry;
+        RelCacheTable::relCatEntryToRecord(&relCatEntry, relCatRecord);
+
+        RecId recId = RelCacheTable::relCache[RELCAT_RELID]->recId;
+        RecBuffer relCatBlock(recId.block);
+        relCatBlock.setRecord(relCatRecord, recId.slot);
+    }
+    free(RelCacheTable::relCache[RELCAT_RELID]);
+
+    // 3) Freeing the memory allocated for Attribute Cache entries of RELCAT and ATTRCAT
+    for (AttrCacheEntry* temp = AttrCacheTable::attrCache[RELCAT_RELID], *next; temp != nullptr; temp = next) {
+        next = temp->next;
+        free(temp);
+    }
+    for (AttrCacheEntry* temp = AttrCacheTable::attrCache[ATTRCAT_RELID], *next; temp != nullptr; temp = next) {
+        next = temp->next;
+        free(temp);
     }
 }

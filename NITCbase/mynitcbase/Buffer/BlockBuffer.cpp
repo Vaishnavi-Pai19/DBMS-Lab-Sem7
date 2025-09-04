@@ -237,6 +237,22 @@ int BlockBuffer::loadBlockAndGetBufferPtr(unsigned char **buffPtr) {
     return SUCCESS;
 }
 
+void BlockBuffer::releaseBlock() {
+    if (blockNum < 0 || blockNum >= DISK_BLOCKS || StaticBuffer::blockAllocMap[blockNum] == UNUSED_BLK)
+        return;
+
+    int bufferNum = StaticBuffer::getBufferNum(blockNum);
+    if (bufferNum == E_BLOCKNOTINBUFFER)
+        return;
+    
+    StaticBuffer::metainfo[bufferNum].free = true;
+
+    StaticBuffer::blockAllocMap[this->blockNum] = UNUSED_BLK;
+
+    this->blockNum = INVALID_BLOCKNUM; 
+}
+
+
 int compareAttrs(union Attribute attr1, union Attribute attr2, int attrType) {
 
     double diff;
