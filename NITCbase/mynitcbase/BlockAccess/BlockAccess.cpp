@@ -179,7 +179,6 @@ int BlockAccess::insert(int relId, Attribute *record) {
             }
             relCatBuf.lastBlk = rec_id.block;
             RelCacheTable::setRelCatEntry(relId, &relCatBuf);
-
         }
     }
     RecBuffer insertBlock(rec_id.block);

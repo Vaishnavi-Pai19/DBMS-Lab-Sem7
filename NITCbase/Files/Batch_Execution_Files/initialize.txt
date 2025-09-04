@@ -1,0 +1,31 @@
+echo -------------Creating Students relation------------
+CREATE TABLE Students(RollNumber STR, Name STR, Marks NUM, Batch STR)
+echo -----------Inserting values into Students-------------
+OPEN TABLE Students
+INSERT INTO Students VALUES FROM students.csv
+CLOSE TABLE Students
+echo
+echo -----------Creating 3 new relations---------------
+CREATE TABLE Locations(Name STR, Capacity NUM)
+CREATE TABLE Participants(RegNo NUM, Event STR)
+CREATE TABLE Events(ID NUM, Title STR, Location STR)
+echo ----------Creating Books relation-----------------
+CREATE TABLE Books(Name STR, Author STR, Price NUM, BookOwner STR)
+echo
+echo ----------Stage 6 exercise on Books---------------
+ALTER TABLE RENAME Books TO LibraryBooks
+ALTER TABLE RENAME LibraryBooks COLUMN BookOwner TO Lender
+OPEN TABLE LibraryBooks;
+SELECT * FROM LibraryBooks INTO null WHERE Price>0
+echo
+echo ---------Inserting records into Locations---------
+OPEN TABLE Locations
+INSERT INTO Locations VALUES FROM locations.csv
+CLOSE TABLE Locations
+echo
+echo -----------Printing Relation Catalog--------------
+SELECT * FROM RELATIONCAT INTO NULL WHERE #Attributes>0
+echo
+echo -----------Printing Attribute Catalog-------------
+SELECT * FROM ATTRIBUTECAT INTO NULL WHERE PrimaryFlag=-1
+echo Done
