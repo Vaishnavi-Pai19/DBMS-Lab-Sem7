@@ -263,7 +263,7 @@ OpenRelTable::~OpenRelTable() {
     // 2) Releasing the Relation Cache Entry of the Relation Catalog
     if(RelCacheTable::relCache[RELCAT_RELID]->dirty) {
         Attribute relCatRecord[RELCAT_NO_ATTRS];
-        RelCatEntry relCatEntry = RelCacheTable::relCache[ATTRCAT_RELID]->relCatEntry;
+        RelCatEntry relCatEntry = RelCacheTable::relCache[RELCAT_RELID]->relCatEntry;
         RelCacheTable::relCatEntryToRecord(&relCatEntry, relCatRecord);
 
         RecId recId = RelCacheTable::relCache[RELCAT_RELID]->recId;
