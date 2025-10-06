@@ -41,13 +41,14 @@ int StaticBuffer::getFreeBuffer(int blockNum) {
     if (blockNum < 0 || blockNum > DISK_BLOCKS) 
         return E_OUTOFBOUND;
 
+    int bufferNum = -1;
+
     for (int i = 0; i < BUFFER_CAPACITY; i++)
     {
-        if (metainfo[i].free == 0)
+        if (metainfo[i].free == false)
             metainfo[i].timeStamp++;
     }
 
-    int bufferNum;
     for (int bufferIndex = 0; bufferIndex < BUFFER_CAPACITY; bufferIndex++) 
     {
         if (metainfo[bufferIndex].free == 1) {
@@ -55,19 +56,24 @@ int StaticBuffer::getFreeBuffer(int blockNum) {
             break;
         }
     }
-    
-    if (bufferNum == BUFFER_CAPACITY)
-    {
-        int maxTimeIndex = -1;
-        for (int i = 0; i < BUFFER_CAPACITY; i++)
-        {
-            if (metainfo[i].timeStamp > maxTimeIndex)
-                maxTimeIndex = i;
-        }
 
-        if (metainfo[maxTimeIndex].dirty == true)
-            Disk::writeBlock(blocks[maxTimeIndex], metainfo[maxTimeIndex].blockNum);
-        bufferNum = maxTimeIndex;
+    if (bufferNum == -1)
+    {
+        int maxTimeStamp = -1;
+        int bufferIndexWithMaxTimeStamp = -1;
+
+        for (int bufferIndex = 0;bufferIndex< BUFFER_CAPACITY;bufferIndex++) 
+        {
+            if (metainfo[bufferIndex].timeStamp > maxTimeStamp)
+            {
+                maxTimeStamp = metainfo[bufferIndex].timeStamp;
+                bufferIndexWithMaxTimeStamp = bufferIndex;
+            }
+        }
+        if(metainfo[bufferIndexWithMaxTimeStamp].dirty == true)
+            Disk::writeBlock(blocks[bufferIndexWithMaxTimeStamp],metainfo[bufferIndexWithMaxTimeStamp].blockNum);
+        
+        bufferNum = bufferIndexWithMaxTimeStamp;
     }
     
     metainfo[bufferNum].free = false;
