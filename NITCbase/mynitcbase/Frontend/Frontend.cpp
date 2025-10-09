@@ -50,22 +50,26 @@ int Frontend::insert_into_table_values(char relname[ATTR_SIZE], int attr_count, 
   return SUCCESS;
 }
 
+// SELECT * FROM RelName INTO TargetName
 int Frontend::select_from_table(char relname_source[ATTR_SIZE], char relname_target[ATTR_SIZE]) {
   // Algebra::project
   return Algebra::project(relname_source, relname_target);
 }
 
+// SELECT Attr1,Attr2 FROM RelName INTO TargetName
 int Frontend::select_attrlist_from_table(char relname_source[ATTR_SIZE], char relname_target[ATTR_SIZE],
                                          int attr_count, char attr_list[][ATTR_SIZE]) {
   // Algebra::project
   return Algebra::project(relname_source, relname_target, attr_count, attr_list);
 }
 
+// SELECT * FROM RelName INTO TargetName WHERE Attribute op value
 int Frontend::select_from_table_where(char relname_source[ATTR_SIZE], char relname_target[ATTR_SIZE],
                                       char attribute[ATTR_SIZE], int op, char value[ATTR_SIZE]) {
   return Algebra::select(relname_source, relname_target, attribute, op, value);
 }
 
+// SELECT Attr1,Attr2 FROM RelName INTO TargetName WHERE Attr op value
 int Frontend::select_attrlist_from_table_where(char relname_source[ATTR_SIZE], char relname_target[ATTR_SIZE],
                                                int attr_count, char attr_list[][ATTR_SIZE],
                                                char attribute[ATTR_SIZE], int op, char value[ATTR_SIZE]) {

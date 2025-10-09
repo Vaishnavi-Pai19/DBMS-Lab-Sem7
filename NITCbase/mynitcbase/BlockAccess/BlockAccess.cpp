@@ -479,10 +479,10 @@ int BlockAccess::project(int relId, Attribute *record) {
         }
     }
 
-    if (block == -1){
+    if (block == -1)
         return E_NOTFOUND;
-    }
-    RecId nextRecId={block, slot};
+    
+    RecId nextRecId = {block, slot};
     RelCacheTable::setSearchIndex(relId, &nextRecId);
 
     RecBuffer recBuffer(nextRecId.block);
