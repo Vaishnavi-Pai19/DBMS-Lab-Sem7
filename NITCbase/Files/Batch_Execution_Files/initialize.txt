@@ -15,17 +15,9 @@ echo
 echo ----------Stage 6 exercise on Books---------------
 ALTER TABLE RENAME Books TO LibraryBooks
 ALTER TABLE RENAME LibraryBooks COLUMN BookOwner TO Lender
-OPEN TABLE LibraryBooks;
-SELECT * FROM LibraryBooks INTO null WHERE Price>0
 echo
 echo ---------Inserting records into Locations---------
 OPEN TABLE Locations
 INSERT INTO Locations VALUES FROM locations.csv
 CLOSE TABLE Locations
-echo
-echo -----------Printing Relation Catalog--------------
-SELECT * FROM RELATIONCAT INTO NULL WHERE #Attributes>0
-echo
-echo -----------Printing Attribute Catalog-------------
-SELECT * FROM ATTRIBUTECAT INTO NULL WHERE PrimaryFlag=-1
 echo Done

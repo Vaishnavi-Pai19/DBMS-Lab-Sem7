@@ -31,9 +31,8 @@ bool isNumber(char *str) {
 // SELECT * FROM srcRel INTO targetVal WHERE attr op strVal;
 int Algebra::select(char srcRel[ATTR_SIZE], char targetRel[ATTR_SIZE], char attr[ATTR_SIZE], int op, char strVal[ATTR_SIZE]) {
     int srcRelId = OpenRelTable::getRelId(srcRel);      
-    if (srcRelId == E_RELNOTOPEN) {
+    if (srcRelId == E_RELNOTOPEN) 
         return E_RELNOTOPEN;
-    }
 
     AttrCatEntry attrCatEntry;
     int ret = AttrCacheTable::getAttrCatEntry(srcRelId, attr, &attrCatEntry);
@@ -74,14 +73,14 @@ int Algebra::select(char srcRel[ATTR_SIZE], char targetRel[ATTR_SIZE], char attr
     {
         AttrCatEntry attrCatEntry;
         AttrCacheTable::getAttrCatEntry(srcRelId, i, &attrCatEntry);
+
         strcpy(attrNames[i], attrCatEntry.attrName);
         attrTypes[i] = attrCatEntry.attrType;
-
     }
 
-    ret = Schema::createRel(srcRel, numAttrs, attrNames, attrTypes);
+    ret = Schema::createRel(targetRel, numAttrs, attrNames, attrTypes);
     if (ret != SUCCESS)
-        return SUCCESS;
+        return ret;
 
     int targetRelId = OpenRelTable::openRel(targetRel);
     if (targetRelId < 0)
@@ -108,7 +107,6 @@ int Algebra::select(char srcRel[ATTR_SIZE], char targetRel[ATTR_SIZE], char attr
         ret = BlockAccess::search(srcRelId, record, attr, attrVal, op);
 
     }
-
     Schema::closeRel(targetRel);
     return SUCCESS;
 }
@@ -136,9 +134,9 @@ int Algebra::project(char srcRel[ATTR_SIZE], char targetRel[ATTR_SIZE]) {
     }
 
     /********* Creating and opening the target relation *********/
-    int ret = Schema::createRel(srcRel, numAttrs, attrNames, attrTypes);
+    int ret = Schema::createRel(targetRel, numAttrs, attrNames, attrTypes);
     if (ret != SUCCESS)
-        return SUCCESS;
+        return ret;
 
     int targetRelId = OpenRelTable::openRel(targetRel);
     if (targetRelId < 0)
