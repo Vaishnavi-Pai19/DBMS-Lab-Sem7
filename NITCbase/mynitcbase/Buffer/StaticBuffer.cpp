@@ -38,7 +38,7 @@ StaticBuffer::~StaticBuffer() {
 }
 
 int StaticBuffer::getFreeBuffer(int blockNum) {
-    if (blockNum < 0 || blockNum > DISK_BLOCKS) 
+    if (blockNum < 0 || blockNum >= DISK_BLOCKS) 
         return E_OUTOFBOUND;
 
     int bufferNum = -1;
@@ -85,7 +85,7 @@ int StaticBuffer::getFreeBuffer(int blockNum) {
 }
 
 int StaticBuffer::getBufferNum(int blockNum) {
-    if (blockNum < 0 || blockNum > DISK_BLOCKS)
+    if (blockNum < 0 || blockNum >= DISK_BLOCKS)
         return E_OUTOFBOUND;
     
     for (int bufferIndex = 0; bufferIndex < BUFFER_CAPACITY; bufferIndex++)
@@ -108,4 +108,13 @@ int StaticBuffer::setDirtyBit(int blockNum){
 
     metainfo[bufferIndex].dirty = true;
     return SUCCESS;
+}
+
+int StaticBuffer::getStaticBlockType(int blockNum){
+    if (blockNum < 0 || blockNum >= DISK_BLOCKS)
+        return E_OUTOFBOUND;
+
+    unsigned char blockType = blockAllocMap[blockNum];
+
+    return (int)blockType;
 }
