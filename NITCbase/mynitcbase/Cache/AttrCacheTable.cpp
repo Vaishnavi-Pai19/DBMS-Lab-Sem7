@@ -96,7 +96,7 @@ int AttrCacheTable::getSearchIndex(int relId, int attrOffset, IndexId *searchInd
 
     for (AttrCacheEntry* entry = attrCache[relId]; entry != nullptr; entry = entry->next)
     {
-        if (entry->attrCatEntry.attrOffset == attrOffset)
+        if (entry->attrCatEntry.offset == attrOffset)
         {
             searchIndex->block = entry->searchIndex.block;
             searchIndex->index = entry->searchIndex.index;
@@ -143,7 +143,7 @@ int AttrCacheTable::setSearchIndex(int relId, int attrOffset, IndexId *searchInd
 
     for (AttrCacheEntry* entry = attrCache[relId]; entry != nullptr; entry = entry->next)
     {
-        if (entry->attrCatEntry.attrOffset == attrOffset)
+        if (entry->attrCatEntry.offset == attrOffset)
         {
             entry->searchIndex.block = searchIndex->block;
             entry->searchIndex.index = searchIndex->index;
