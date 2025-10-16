@@ -1,6 +1,9 @@
 #include "BPlusTree.h"
 
 #include <cstring>
+#include <cstdio>
+
+int BPlusTree::numComparisons;
 
 RecId BPlusTree::bPlusSearch(int relId, char attrName[ATTR_SIZE], Attribute attrVal, int op) {
     
@@ -99,6 +102,8 @@ RecId BPlusTree::bPlusSearch(int relId, char attrName[ATTR_SIZE], Attribute attr
             {
                 internalBlk.getEntry(&intEntry, i);
                 int cval = compareAttrs(intEntry.attrVal, attrVal, attrCatEntry.attrType);
+                BPlusTree::numComparisons++;
+
                 if (((op == EQ || op == GE) && cval >= 0) ||(op == GT && cval > 0))
                     break;
                 i++;
@@ -129,6 +134,7 @@ RecId BPlusTree::bPlusSearch(int relId, char attrName[ATTR_SIZE], Attribute attr
 
             // Comparison between leafEntry's attribute value and input attrVal
             int cmpVal = compareAttrs(leafEntry.attrVal, attrVal, attrCatEntry.attrType);
+            BPlusTree::numComparisons++;
 
             if (
                 (op == EQ && cmpVal == 0) ||
@@ -156,5 +162,6 @@ RecId BPlusTree::bPlusSearch(int relId, char attrName[ATTR_SIZE], Attribute attr
         block = leafHead.rblock;
         index = 0;
     }
+    
     return RecId{-1, -1};
 }

@@ -57,6 +57,7 @@ RecId BlockAccess::linearSearch(int relId, char attrName[ATTR_SIZE], union Attri
         int attrOffset = attrCatBuffer.offset;
 
         int cmpVal = compareAttrs(record[attrOffset], attrVal, attrCatBuffer.attrType);
+        BPlusTree::numComparisons++;
 
         /* Next task is to check whether this record satisfies the given condition.
            It is determined based on the output of previous comparison and
