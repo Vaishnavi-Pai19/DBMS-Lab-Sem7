@@ -278,6 +278,7 @@ int IndInternal::getEntry(void *ptr, int indexNum) {
     // int32_t = type of int that is guaranteed to be 4 bytes across every C++ implementation
     unsigned char *entryPtr = bufferPtr + HEADER_SIZE + (indexNum * 20);
 
+    // 3-tuple <left pointer, attrVal, right pointer> = 24 bytes (40 on one row)
     memcpy(&(internalEntry->lChild), entryPtr, sizeof(int32_t));
     memcpy(&(internalEntry->attrVal), entryPtr + 4, sizeof(Attribute));
     memcpy(&(internalEntry->rChild), entryPtr + 20, 4);
@@ -298,7 +299,7 @@ if (indexNum < 0 || indexNum >= MAX_KEYS_LEAF)
     unsigned char *entryPtr = bufferPtr + HEADER_SIZE + (indexNum * LEAF_ENTRY_SIZE);
     struct Index *index = (struct Index *)ptr;
 
-    // 3-tuple <attrVal, block, slot>
+    // 3-tuple <attrVal, block, slot> = 24 bytes + 8 unused
     memcpy(&(index->attrVal), entryPtr, sizeof(Attribute));
     memcpy(&(index->block), entryPtr + 16, 4);
     memcpy(&(index->slot), entryPtr + 20, 4);

@@ -15,6 +15,7 @@ RecId BPlusTree::bPlusSearch(int relId, char attrName[ATTR_SIZE], Attribute attr
     
     int block, index;
 
+    /* If this is the first search, start at the root block and index 0 */
     if (searchIndex.block == -1 && searchIndex.index == -1) 
     {
         // Search done for the first time
@@ -28,6 +29,7 @@ RecId BPlusTree::bPlusSearch(int relId, char attrName[ATTR_SIZE], Attribute attr
         /* A valid searchIndex points to an entry in the leaf index of the attribute's
            B+ Tree which had previously satisfied the op for the given attrVal */
 
+        /* If continuing a previous search, move to the next entry in the leaf block */
         block = searchIndex.block;
         index = searchIndex.index + 1;  
         IndLeaf leaf(block);
@@ -35,10 +37,9 @@ RecId BPlusTree::bPlusSearch(int relId, char attrName[ATTR_SIZE], Attribute attr
         HeadInfo leafHead;
         leaf.getHeader(&leafHead);
 
+        /* If at the end of a leaf block, move to the next leaf block */
         if (index >= leafHead.numEntries) {
-            /* All the entries in the block has been searched; search from the
-            beginning of the next leaf index block */
-
+    
             block = leafHead.rblock;
             index = 0;
 
