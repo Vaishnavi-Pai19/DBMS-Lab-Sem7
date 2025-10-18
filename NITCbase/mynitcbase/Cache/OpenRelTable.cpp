@@ -211,6 +211,7 @@ int OpenRelTable::closeRel(int relId) {
     if (OpenRelTable::tableMetaInfo[relId].free)
         return E_RELNOTOPEN;
 
+    /****** Releasing the Relation Cache entry of the relation ******/
     if (RelCacheTable::relCache[relId]->dirty == true)
     {
         RelCatEntry relCatEntry = RelCacheTable::relCache[relId]->relCatEntry;
@@ -223,16 +224,28 @@ int OpenRelTable::closeRel(int relId) {
     }
 
     free(RelCacheTable::relCache[relId]);
-    for (AttrCacheEntry* entry = AttrCacheTable::attrCache[relId]; entry != nullptr; ) {
-            AttrCacheEntry* nextEntry = entry->next;
-            free(entry);
-            entry = nextEntry;
-        }
-
-    OpenRelTable::tableMetaInfo[relId].free = true;
-
     RelCacheTable::relCache[relId] = nullptr;
+
+    /****** Releasing the Attribute Cache entry of the relation ******/
+    for (AttrCacheEntry* entry = AttrCacheTable::attrCache[relId]; entry != nullptr; ) {
+        AttrCacheEntry* nextEntry = entry->next;
+        if (entry->dirty)
+        {
+            Attribute attrCatRecord[ATTRCAT_NO_ATTRS];
+            AttrCatEntry attrCatEntry = entry->attrCatEntry;
+            AttrCacheTable::attrCatEntryToRecord(&attrCatEntry, attrCatRecord);
+
+            RecId recId = entry->recId;
+            RecBuffer attrCatBlock(recId.block);
+            attrCatBlock.setRecord(attrCatRecord, recId.slot);
+        }
+        free(entry);
+        entry = nextEntry;
+    }
     AttrCacheTable::attrCache[relId] = nullptr;
+
+    /****** Updating metadata in the Open Relation Table of the relation ******/
+    OpenRelTable::tableMetaInfo[relId].free = true;
 
     return SUCCESS;
 }

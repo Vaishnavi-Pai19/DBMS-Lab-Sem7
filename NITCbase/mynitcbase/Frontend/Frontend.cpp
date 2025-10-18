@@ -36,13 +36,11 @@ int Frontend::alter_table_rename_column(char relname[ATTR_SIZE], char attrname_f
 }
 
 int Frontend::create_index(char relname[ATTR_SIZE], char attrname[ATTR_SIZE]) {
-  // Schema::createIndex
-  return SUCCESS;
+  return Schema::createIndex(relname, attrname);
 }
 
 int Frontend::drop_index(char relname[ATTR_SIZE], char attrname[ATTR_SIZE]) {
-  // Schema::dropIndex
-  return SUCCESS;
+  return Schema::dropIndex(relname, attrname);
 }
 
 int Frontend::insert_into_table_values(char relname[ATTR_SIZE], int attr_count, char attr_values[][ATTR_SIZE]) {
@@ -74,40 +72,26 @@ int Frontend::select_attrlist_from_table_where(char relname_source[ATTR_SIZE], c
                                                int attr_count, char attr_list[][ATTR_SIZE],
                                                char attribute[ATTR_SIZE], int op, char value[ATTR_SIZE]) {
   // Algebra::select + Algebra::project??
-  // Call select() method of the Algebra Layer with correct arguments to
-  // create a temporary target relation with name ".temp" (use constant TEMP)
+  
+  // Creating a temporary target relation with name ".temp" (constant TEMP)
+  // TEMP will contain all the attributes of the source relation 
   char tempStr[] = TEMP;
   int response = Algebra::select(relname_source, tempStr, attribute, op, value);
 
-  // TEMP will contain all the attributes of the source relation as it is the
-  // result of a select operation
-
-  // Return Error values, if not successful
   if(response != SUCCESS) {
     return response;
   }
 
-  // Open the TEMP relation using OpenRelTable::openRel()
   int tempRelId = OpenRelTable::openRel(tempStr);
-  // if open fails, delete TEMP relation using Schema::deleteRel() and
-  // return the error code
   if(tempRelId < 0) {
     Schema::deleteRel(tempStr);
     return tempRelId;
   }
 
-  // On the TEMP relation, call project() method of the Algebra Layer with
-  // correct arguments to create the actual target relation. The final
-  // target relation contains only those attributes mentioned in attr_list
   response = Algebra::project(tempStr, relname_target, attr_count, attr_list);
-
   
-  // close the TEMP relation using OpenRelTable::closeRel()
   OpenRelTable::closeRel(tempRelId);
-  // delete the TEMP relation using Schema::deleteRel()
   Schema::deleteRel(tempStr);
-
-  // return any error codes from project() or SUCCESS otherwise
   return response;
 }
 
