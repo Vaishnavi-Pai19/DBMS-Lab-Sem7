@@ -187,7 +187,25 @@ int BlockAccess::insert(int relId, Attribute *record)
     relCatEntry.numRecs++;
     RelCacheTable::setRelCatEntry(relId, &relCatEntry);
 
-    return SUCCESS;
+    /*************** B+ Tree Insertions ***************/
+    int flag = SUCCESS;
+
+    // Iterating over all the attributes of the relation
+    for (int offset = 0; offset < numOfAttributes; offset++)
+    {
+        AttrCatEntry attrCatEntry;
+        AttrCacheTable::getAttrCatEntry(relId, attrOffset, &attrCatEntry);
+        int rootBlock = attrCatEntry.rootBlock;
+
+        if (rootBlock != -1)
+        {
+            int retVal = BPlusTree::bPlusInsert(relId, attrCatEntry.attrName, record[offset], recId);
+            if (retVal == E_DISKFULL)          // Index for this attribute has been destroyed
+                flag = E_INDEX_BLOCKS_RELEASED;
+        }
+    }
+
+    return flag;
 }
 
 int BlockAccess::search(int relId, Attribute *record, char attrName[ATTR_SIZE], Attribute attrVal, int op) {
@@ -311,10 +329,10 @@ int BlockAccess::deleteRelation(char relName[ATTR_SIZE]) {
             attrCatBuffer.releaseBlock();
         }
 
-        // (the following part is only relevant once indexing has been implemented)
-        // if index exists for the attribute (rootBlock != -1), call bplus destroy
-        if (rootBlock != -1) {
-            
+        // If index exists for the attribute, calling bPlus Destroy
+        if (rootBlock != -1) 
+        {
+            BPlusTree::bPlusDestroy(rootBlock);
         }
     }
 
