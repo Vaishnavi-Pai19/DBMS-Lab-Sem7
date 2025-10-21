@@ -17,7 +17,6 @@ class BPlusTree {
   static int createNewRoot(int relId, char attrName[ATTR_SIZE], Attribute attrVal, int lChild, int rChild);
 
  public:
-  static int numComparisons;
   static int bPlusCreate(int relId, char attrName[ATTR_SIZE]);
   static int bPlusInsert(int relId, char attrName[ATTR_SIZE], union Attribute attrVal, RecId recordId);
   static RecId bPlusSearch(int relId, char attrName[ATTR_SIZE], union Attribute attrVal, int op);

@@ -136,7 +136,7 @@ int Schema::deleteRel(char *relName) {
     */
 }
 
-int createIndex(char relName[ATTR_SIZE],char attrName[ATTR_SIZE]) {
+int Schema::createIndex(char relName[ATTR_SIZE],char attrName[ATTR_SIZE]) {
     if (strcmp(relName, RELCAT_RELNAME) == 0 || strcmp(relName, ATTRCAT_RELNAME) == 0) {
         return E_NOTPERMITTED;
     }
