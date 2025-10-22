@@ -1,0 +1,28 @@
+echo ---------Creating Organizers(name STR, eventId NUM)---------
+CREATE TABLE Organizers(name STR, eventId NUM)
+echo
+echo --------------Inserting values into Organizers--------------
+echo
+OPEN TABLE Organizers
+INSERT INTO Organizers VALUES FROM organizers.csv
+echo
+echo --------------------Creating PplReports---------------------
+echo
+OPEN TABLE Participants
+OPEN TABLE Events
+SELECT * FROM Participants JOIN Events INTO PplEvents WHERE Participants.event = Events.title
+OPEN TABLE PplEvents
+SELECT regNo,event,name FROM PplEvents JOIN Organizers INTO PplReports WHERE PplEvents.id = Organizers.eventId
+echo
+echo ------------------------------------------------------------
+echo
+echo ---------------------Creating ThomasPpl---------------------
+echo 
+SELECT * FROM Organizers INTO ThomasEvents WHERE name=Thomas
+SELECT regNo,event,id FROM Participants JOIN Events INTO PplEventIds WHERE Participants.event = Events.title
+OPEN TABLE ThomasEvents
+OPEN TABLE PplEventIds
+SELECT regNo,event FROM PplEventIds JOIN ThomasEvents INTO ThomasPpl WHERE PplEventIds.id = ThomasEvents.eventId
+echo
+echo
+echo ----------------------------Done----------------------------

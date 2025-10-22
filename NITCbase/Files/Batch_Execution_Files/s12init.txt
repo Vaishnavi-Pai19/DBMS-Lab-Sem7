@@ -1,24 +1,25 @@
-echo ----------------Creating tables----------------
+echo ---------------------Creating tables----------------------
 echo
 CREATE TABLE Events(id NUM, title STR, location STR)
 CREATE TABLE Locations(name STR, capacity NUM)
 CREATE TABLE Participants(regNo NUM, event STR)
 echo
-echo -------------Tables created successfully-------------
+echo ---------------Tables created successfully----------------
 echo
-echo ----------------Opening tables----------------
+echo ----------------------Opening tables----------------------
 echo
 OPEN TABLE Events
 OPEN TABLE Locations
 OPEN TABLE Participants
 echo
-echo -------------Tables opened successfully-------------
+echo ----------------Tables opened successfully----------------
 echo
-echo ----------Inserting values into tables----------
+echo ---------------Inserting values into tables---------------
 echo
 INSERT INTO Events VALUES FROM events.csv
 INSERT INTO Locations VALUES FROM locations.csv
 INSERT INTO Participants VALUES FROM participants.csv
 echo
-echo --------Values inserted successfully--------
-echo Done
+echo ---------------Values inserted successfully---------------
+echo
+echo ---------------------------Done---------------------------

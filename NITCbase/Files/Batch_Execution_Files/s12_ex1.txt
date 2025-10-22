@@ -22,7 +22,19 @@ OPEN TABLE 100_Cap
 SELECT * FROM 100_Cap INTO 100_200_Cap WHERE capacity <= 199
 OPEN TABLE 100_200_Cap
 SELECT title FROM Events JOIN 100_200_Cap INTO 100_200_Events WHERE Events.location = 100_200_Cap.name
+echo
 OPEN TABLE 100_200_Events
 SELECT * FROM Participants JOIN 100_200_Events INTO MiniEventPeople WHERE Participants.event = 100_200_Events.title
+echo --------------------------------------------------------
+echo
+echo ---------------------Closing tables---------------------
+echo
+CLOSE TABLE Events
+CLOSE TABLE Locations
+CLOSE TABLE Participants
+CLOSE TABLE AudiEvents
+CLOSE TABLE 100_Cap
+CLOSE TABLE 100_200_Cap
+CLOSE TABLE 100_200_Events
 echo
 echo --------------------------Done--------------------------
