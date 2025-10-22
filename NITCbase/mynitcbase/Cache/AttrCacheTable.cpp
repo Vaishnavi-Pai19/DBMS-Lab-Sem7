@@ -181,8 +181,8 @@ int AttrCacheTable::setAttrCatEntry(int relId, char attrName[ATTR_SIZE], AttrCat
     {
         if (strcmp(entry->attrCatEntry.attrName, attrName) == 0)
         {
-            attrCache[relId]->attrCatEntry = *attrCatBuf;
-            attrCache[relId]->dirty = true;
+            entry->attrCatEntry = *attrCatBuf;
+            entry->dirty = true;
             return SUCCESS;
         }
     }
@@ -204,8 +204,8 @@ int AttrCacheTable::setAttrCatEntry(int relId, int attrOffset, AttrCatEntry *att
     {
         if (entry->attrCatEntry.offset == attrOffset)
         {
-            attrCache[relId]->attrCatEntry = *attrCatBuf;
-            attrCache[relId]->dirty = true;
+            entry->attrCatEntry = *attrCatBuf;
+            entry->dirty = true;
             return SUCCESS;
         }
     }

@@ -345,7 +345,10 @@ int IndLeaf::setEntry(void *ptr, int indexNum) {
 
     // Copying the Index at ptr to indexNum'th entry in the buffer using memcpy
     unsigned char *entryPtr = bufferPtr + HEADER_SIZE + (indexNum * LEAF_ENTRY_SIZE);
-    memcpy(entryPtr, (struct Index *)ptr, LEAF_ENTRY_SIZE);
+    struct Index *index = (struct Index *)ptr;
+    memcpy(entryPtr, &(index->attrVal), sizeof(Attribute));
+    memcpy(entryPtr + 16, &(index->block), sizeof(int));
+    memcpy(entryPtr + 20, &(index->slot), sizeof(int));
 
     ret = StaticBuffer::setDirtyBit(this->blockNum);
     if (ret != SUCCESS)

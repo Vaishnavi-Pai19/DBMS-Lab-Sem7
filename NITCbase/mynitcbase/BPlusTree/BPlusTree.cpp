@@ -303,7 +303,7 @@ int BPlusTree::insertIntoLeaf(int relId, char attrName[ATTR_SIZE], int blockNum,
     int index = 0;
     int i = 0;
 
-    for (i = 0; i<header.numEntries; i++)
+    for (i = 0; i < header.numEntries; i++)
     {
         leafBlock.getEntry(&leafEntry, i);
         if (compareAttrs(leafEntry.attrVal, indexEntry.attrVal, attrCatEntry.attrType) >= 0)
@@ -395,7 +395,7 @@ int BPlusTree::splitLeaf(int leafBlockNum, Index indices[]) {
     leftHeader.rblock = rightBlkNum;
     leftBlk.setHeader(&leftHeader);
 
-    for (int i = 0; i < 32; i++)       // Each leaf block will have 32 entries
+    for (int i = 0; i <= MIDDLE_INDEX_LEAF; i++)       // Each leaf block will have 32 entries
     {
         leftBlk.setEntry(&indices[i], i);
         rightBlk.setEntry(&indices[i+32], i);
@@ -422,15 +422,36 @@ int BPlusTree::insertIntoInternal(int relId, char attrName[ATTR_SIZE], int intBl
 
     InternalEntry tempEntry;
     int index = 0;
+    int i = 0;
 
-    for (int i = 0; i < header.numEntries; i++)
+    for (i = 0; i < header.numEntries; i++)
     {
         intBlock.getEntry(&tempEntry, i);
         if (compareAttrs(tempEntry.attrVal, intEntry.attrVal, attrCatEntry.attrType) >= 0)
         {
+            if (index > 0)
+            {
+                intEntries[index-1].rChild = intEntry.lChild;
+            }
             break;
         }
         // Inserting into the next position where next value should go
+        intEntries[index++] = tempEntry;
+    }
+    intEntries[index++] = intEntry;
+
+    if (i < header.numEntries)
+    {
+        intBlock.getEntry(&tempEntry, i);
+        tempEntry.lChild = intEntry.rChild;
+        intEntries[index] = tempEntry;
+        index++;
+        i++;
+    }
+
+    for (;i < header.numEntries; i++)
+    {
+        intBlock.getEntry(&tempEntry, i);
         intEntries[index] = tempEntry;
         index++;
     }
@@ -439,11 +460,10 @@ int BPlusTree::insertIntoInternal(int relId, char attrName[ATTR_SIZE], int intBl
         header.numEntries++;
         intBlock.setHeader(&header);
         
-        for (int i = 0; i < header.numEntries; i++)
+        for (int j = 0; j < header.numEntries; j++)
         {
-            intBlock.setEntry(&intEntries[i], i);
+            intBlock.setEntry(&intEntries[j], j);
         }
-
         return SUCCESS;
     }
 
@@ -510,8 +530,12 @@ int BPlusTree::splitInternal(int intBlockNum, InternalEntry internalEntries[]) {
         rightBlk.setEntry(&internalEntries[i+51], i);
     }
     int type = StaticBuffer::getStaticBlockType(internalEntries[0].lChild);
+    BlockBuffer blockbuffer (internalEntries[MIDDLE_INDEX_INTERNAL+1].lChild);
 
     HeadInfo blockHeader;
+    blockbuffer.getHeader(&blockHeader);
+    blockHeader.pblock = rightBlkNum;
+    blockbuffer.setHeader(&blockHeader);
 
     // Updating the pblock of all entries in new right block
     for (int i = 0; i < MIDDLE_INDEX_INTERNAL; i++)
