@@ -181,9 +181,9 @@ int BPlusTree::bPlusCreate(int relId, char attrName[ATTR_SIZE]) {
 
     // If the block could not be allocated, the appropriate error code will be stored in the blockNum member field of the object
     int rootBlock = rootBlockBuf.getBlockNum();
-    if (rootBlock == E_DISKFULL) {
+    if (rootBlock == E_DISKFULL) 
         return E_DISKFULL;
-    }
+    
 
     attrCatEntry.rootBlock = rootBlock;
     AttrCacheTable::setAttrCatEntry(relId, attrName, &attrCatEntry);
@@ -201,7 +201,7 @@ int BPlusTree::bPlusCreate(int relId, char attrName[ATTR_SIZE]) {
         // Traversing through all occupied slots of the block
         for (int i = 0; i < relCatEntry.numSlotsPerBlk; i++)
         {
-            if (slotMap[i] == OCCUPIED)
+            if (slotMap[i] == SLOT_OCCUPIED)
             {
                 Attribute record[relCatEntry.numAttrs];
                 blockBuffer.getRecord(record, i);
