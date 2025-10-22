@@ -287,3 +287,145 @@ int Algebra::insert(char relName[ATTR_SIZE], int nAttrs, char record[][ATTR_SIZE
     int retVal = BlockAccess::insert(relId, recordValues);
     return retVal;
 }
+
+int Algebra::join(char srcRelation1[ATTR_SIZE], char srcRelation2[ATTR_SIZE], char targetRelation[ATTR_SIZE], char attribute1[ATTR_SIZE], char attribute2[ATTR_SIZE]) {
+    int srcId1 = OpenRelTable::getRelId(srcRelation1);
+    int srcId2 = OpenRelTable::getRelId(srcRelation2);
+
+    if (srcId1 == E_RELNOTOPEN || srcId2 == E_RELNOTOPEN)
+        return E_RELNOTOPEN;
+
+    AttrCatEntry attrCatEntry1, attrCatEntry2;
+    int ret1 = AttrCacheTable::getAttrCatEntry(srcId1, attribute1, &attrCatEntry1);
+    int ret2 = AttrCacheTable::getAttrCatEntry(srcId2, attribute2, &attrCatEntry2);
+    
+    if (ret1 == E_ATTRNOTEXIST || ret2 == E_ATTRNOTEXIST)
+        return E_ATTRNOTEXIST;
+
+    // printf ("E_ATTRNOTEXIST check done\n");
+
+    if (attrCatEntry1.attrType != attrCatEntry2.attrType)
+        return E_ATTRTYPEMISMATCH;
+
+    // printf ("E_ATTRTYPEMISMATCH check done\n");
+
+    RelCatEntry relCatEntry1, relCatEntry2;
+    RelCacheTable::getRelCatEntry(srcId1, &relCatEntry1);
+    RelCacheTable::getRelCatEntry(srcId2, &relCatEntry2);
+
+    AttrCatEntry temp1, temp2;
+    int numAttrs1 = relCatEntry1.numAttrs;
+    int numAttrs2 = relCatEntry2.numAttrs;
+
+    for (int j = 0; j < numAttrs2; j++)
+    {
+        if (j == attrCatEntry2.offset) continue;
+        AttrCacheTable::getAttrCatEntry(srcId2, j, &temp2);
+
+        for (int i = 0; i < numAttrs1; i++)
+        {
+            AttrCacheTable::getAttrCatEntry(srcId1, i, &temp1);
+            if (strcmp(temp1.attrName, temp2.attrName) == 0)
+                return E_DUPLICATEATTR;
+        }
+    }
+    // printf ("E_DUPLICATEATTR check done\n");
+
+    if (attrCatEntry2.rootBlock == -1)
+    {
+        int ret = BPlusTree::bPlusCreate(srcId2, attrCatEntry2.attrName);
+        // printf ("B+ tree created for second relation\n");
+        if (ret != SUCCESS)     // Should only be E_DISKFULL
+            return ret;
+    }
+
+    int numAttrsTarget = numAttrs1 + numAttrs2 - 1;
+
+    // Arrays to store the details of the target relation
+    char targetRelAttrNames[numAttrsTarget][ATTR_SIZE];
+    int targetRelAttrTypes[numAttrsTarget];
+    int i = 0;
+
+    for (i = 0; i < numAttrs1; i++)
+    {
+        AttrCacheTable::getAttrCatEntry(srcId1, i, &temp1);
+        strcpy(targetRelAttrNames[i], temp1.attrName);
+        targetRelAttrTypes[i] = temp1.attrType;
+    }
+
+    // Copying till attribute2 in srcRelation2
+    for (i = 0; i < attrCatEntry2.offset; i++)
+    {
+        AttrCacheTable::getAttrCatEntry(srcId2, i, &temp2);
+        strcpy(targetRelAttrNames[numAttrs1 + i], temp2.attrName);
+        targetRelAttrTypes[numAttrs1 + i] = temp2.attrType;
+    }
+
+    // Copying after attribute2 in srcRelation2
+    for (i = attrCatEntry2.offset+1; i < numAttrs2; i++)
+    {
+        AttrCacheTable::getAttrCatEntry(srcId2, i, &temp2);
+        strcpy(targetRelAttrNames[numAttrs1 + i - 1], temp2.attrName);
+        targetRelAttrTypes[numAttrs1 + i - 1] = temp2.attrType;
+    }
+
+    // printf ("Copying of details for target relation done\n");
+
+    ret1 = Schema::createRel(targetRelation, numAttrsTarget, targetRelAttrNames, targetRelAttrTypes);
+    if (ret1 != SUCCESS)
+    {
+        printf ("Creating relation failed\n");
+        return ret1;
+    }
+
+    int targetId = OpenRelTable::openRel(targetRelation);
+    if (targetId < 0)
+    {
+        printf ("Opening relation failed\n");
+        Schema::deleteRel(targetRelation);
+        return targetId;
+    }
+
+    Attribute record1[numAttrs1];
+    Attribute record2[numAttrs2];
+    Attribute targetRecord[numAttrsTarget];
+    RelCacheTable::resetSearchIndex(srcId1);
+
+    // Loop to get every record of srcRelation1 one by one
+    while (BlockAccess::project(srcId1, record1) == SUCCESS) 
+    {
+        RelCacheTable::resetSearchIndex(srcId2);
+        AttrCacheTable::resetSearchIndex(srcId2, attribute2);
+
+        // Loop to get every record of srcRelation2 which satisfies record1.attribute1 = record2.attribute2
+        while (BlockAccess::search(srcId2, record2, attribute2, record1[attrCatEntry1.offset], EQ) == SUCCESS ) 
+        {
+            int i = 0;
+
+            // Copying rcRelation1's and srcRelation2's attribute values (except for attribute2 in rel2) to targetRecord
+            for (i = 0; i < numAttrs1; i++)
+                targetRecord[i] = record1[i];
+
+            // Copying till attribute2 in srcRelation2
+            for (i = 0; i < attrCatEntry2.offset; i++)
+                targetRecord[numAttrs1 + i] = record2[i];
+            
+            // Copying after attribute2 in srcRelation2
+            for (i = attrCatEntry2.offset+1; i < numAttrs2; i++)
+                targetRecord[numAttrs1 + i - 1] = record2[i];
+
+            // printf ("Copying into record done\n");
+            ret1 = BlockAccess::insert(targetId, targetRecord);
+
+            if (ret1 == E_DISKFULL) 
+            {
+                OpenRelTable::closeRel(targetId);
+                Schema::deleteRel(targetRelation);
+                return E_DISKFULL;
+            }
+        }
+    }
+
+    OpenRelTable::closeRel(targetId);
+    return SUCCESS;
+}

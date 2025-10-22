@@ -1,0 +1,28 @@
+echo ----------Creating EventLocations(name STR)-------------
+echo
+OPEN TABLE Events 
+OPEN TABLE Locations
+SELECT name FROM Locations JOIN Events INTO EventLocations WHERE Locations.name = Events.location
+echo
+echo --------------------------------------------------------
+echo
+echo -----Creating AudiPeople(regNo NUM, eventName STR)------
+echo
+SELECT title FROM Events INTO AudiEvents WHERE location = Audi
+OPEN TABLE Participants
+OPEN TABLE AudiEvents
+SELECT regNo,event FROM Participants JOIN AudiEvents INTO AudiPeople WHERE Participants.event = AudiEvents.title
+echo
+echo --------------------------------------------------------
+echo
+echo ---Creating MiniEventPeople(regNo STR, eventName NUM)---
+echo
+SELECT * FROM Locations INTO 100_Cap WHERE capacity >= 101
+OPEN TABLE 100_Cap
+SELECT * FROM 100_Cap INTO 100_200_Cap WHERE capacity <= 199
+OPEN TABLE 100_200_Cap
+SELECT title FROM Events JOIN 100_200_Cap INTO 100_200_Events WHERE Events.location = 100_200_Cap.name
+OPEN TABLE 100_200_Events
+SELECT * FROM Participants JOIN 100_200_Events INTO MiniEventPeople WHERE Participants.event = 100_200_Events.title
+echo
+echo --------------------------Done--------------------------
