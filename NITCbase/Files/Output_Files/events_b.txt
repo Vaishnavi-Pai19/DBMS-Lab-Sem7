@@ -1,0 +1,119 @@
+----- B+ TREE BLOCKS -----
+BLOCK 41
+Block Type: IND_INTERNAL
+Parent Block: -1
+No of entries: 1
+lchild: 39, key_val: event_fu, rchild: 40
+---------
+BLOCK 39
+Block Type: IND_LEAF
+Parent Block: 41
+No of entries: 51
+left node: -1, right node: 40
+key_val: event_dw
+key_val: event_dx
+key_val: event_dy
+key_val: event_dz
+key_val: event_ea
+key_val: event_eb
+key_val: event_ec
+key_val: event_ed
+key_val: event_ee
+key_val: event_ef
+key_val: event_eg
+key_val: event_eh
+key_val: event_ei
+key_val: event_ej
+key_val: event_ek
+key_val: event_el
+key_val: event_em
+key_val: event_en
+key_val: event_eo
+key_val: event_ep
+key_val: event_eq
+key_val: event_er
+key_val: event_es
+key_val: event_et
+key_val: event_eu
+key_val: event_ev
+key_val: event_ew
+key_val: event_ex
+key_val: event_ey
+key_val: event_ez
+key_val: event_fa
+key_val: event_fb
+key_val: event_fc
+key_val: event_fd
+key_val: event_fe
+key_val: event_ff
+key_val: event_fg
+key_val: event_fh
+key_val: event_fi
+key_val: event_fj
+key_val: event_fk
+key_val: event_fl
+key_val: event_fm
+key_val: event_fn
+key_val: event_fo
+key_val: event_fp
+key_val: event_fq
+key_val: event_fr
+key_val: event_fs
+key_val: event_ft
+key_val: event_fu
+---------
+BLOCK 40
+Block Type: IND_LEAF
+Parent Block: 41
+No of entries: 49
+left node: 39, right node: -1
+key_val: event_fv
+key_val: event_fw
+key_val: event_fx
+key_val: event_fy
+key_val: event_fz
+key_val: event_ga
+key_val: event_gb
+key_val: event_gc
+key_val: event_gd
+key_val: event_ge
+key_val: event_gf
+key_val: event_gg
+key_val: event_gh
+key_val: event_gi
+key_val: event_gj
+key_val: event_gk
+key_val: event_gl
+key_val: event_gm
+key_val: event_gn
+key_val: event_go
+key_val: event_gp
+key_val: event_gq
+key_val: event_gr
+key_val: event_gs
+key_val: event_gt
+key_val: event_gu
+key_val: event_gv
+key_val: event_gw
+key_val: event_gx
+key_val: event_gy
+key_val: event_gz
+key_val: event_ha
+key_val: event_hb
+key_val: event_hc
+key_val: event_hd
+key_val: event_he
+key_val: event_hf
+key_val: event_hg
+key_val: event_hh
+key_val: event_hi
+key_val: event_hj
+key_val: event_hk
+key_val: event_hl
+key_val: event_hm
+key_val: event_hn
+key_val: event_ho
+key_val: event_hp
+key_val: event_hq
+key_val: event_hr
+---------
