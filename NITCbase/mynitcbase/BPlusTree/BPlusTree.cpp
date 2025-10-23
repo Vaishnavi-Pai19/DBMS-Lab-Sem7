@@ -18,7 +18,7 @@ RecId BPlusTree::bPlusSearch(int relId, char attrName[ATTR_SIZE], Attribute attr
     {
         // Search done for the first time
         block = attrCatEntry.rootBlock;
-        printf ("Root block number = %d\n", attrCatEntry.rootBlock);
+        // printf ("Root block number = %d\n", attrCatEntry.rootBlock);
         index = 0;
 
         if (attrCatEntry.rootBlock == -1) 
@@ -60,7 +60,7 @@ RecId BPlusTree::bPlusSearch(int relId, char attrName[ATTR_SIZE], Attribute attr
     while(StaticBuffer::getStaticBlockType(block) == IND_INTERNAL) 
     { 
         IndInternal internalBlk(block);
-        printf ("Block number of internal index block = %d\n", block);
+        // printf ("Block number of internal index block = %d\n", block);
 
         HeadInfo intHead;
         internalBlk.getHeader(&intHead);
@@ -105,19 +105,19 @@ RecId BPlusTree::bPlusSearch(int relId, char attrName[ATTR_SIZE], Attribute attr
             while (i < intHead.numEntries) 
             {
                 internalBlk.getEntry(&intEntry, i);
-                if (attrCatEntry.attrType == 0)
-                    printf ("Internal index value = %lf, attrVal = %lf, index = %d\n", intEntry.attrVal.nVal, attrVal.nVal, i);
-                else
-                    printf ("Internal index value = %s, attrVal = %s, index = %d\n", intEntry.attrVal.sVal, attrVal.sVal, i);
+                // if (attrCatEntry.attrType == 0)
+                //     printf ("Internal index value = %lf, attrVal = %lf, index = %d\n", intEntry.attrVal.nVal, attrVal.nVal, i);
+                // else
+                //     printf ("Internal index value = %s, attrVal = %s, index = %d\n", intEntry.attrVal.sVal, attrVal.sVal, i);
 
                 int cval = compareAttrs(intEntry.attrVal, attrVal, attrCatEntry.attrType);
 
                 if (((op == EQ || op == GE) && cval >= 0) ||(op == GT && cval > 0))
                 {
-                    if (attrCatEntry.attrType == 0)
-                        printf ("Found the internal index entry %lf at index %d\n", intEntry.attrVal.nVal, i);
-                    else
-                        printf ("Found the internal index entry %s at index %d\n", intEntry.attrVal.sVal, i);
+                    // if (attrCatEntry.attrType == 0)
+                    //     printf ("Found the internal index entry %lf at index %d\n", intEntry.attrVal.nVal, i);
+                    // else
+                    //     printf ("Found the internal index entry %s at index %d\n", intEntry.attrVal.sVal, i);
                     
                     break;
                 }
@@ -127,17 +127,17 @@ RecId BPlusTree::bPlusSearch(int relId, char attrName[ATTR_SIZE], Attribute attr
 
             if (i < intHead.numEntries) {
                 // Move to the left child of that entry
-                printf ("Going to left block\n");
+                // printf ("Going to left block\n");
                 block =  intEntry.lChild;
 
             } else {
                 // Move to the right child of the last entry of the block
-                printf ("Going to right block ie last leaf block\n");
+                // printf ("Going to right block ie last leaf block\n");
                 block =  intEntry.rChild;
             }
         }
     }
-    printf ("Block number of leaf block = %d\n", block);
+    // printf ("Block number of leaf block = %d\n", block);
 
     // NOTE: `block` now has the block number of a leaf index block.
     /****** Traversing leaf index block by moving right to find entry that matches our condition ******/
@@ -150,10 +150,10 @@ RecId BPlusTree::bPlusSearch(int relId, char attrName[ATTR_SIZE], Attribute attr
 
         while (index < leafHead.numEntries) {
             leafBlk.getEntry(&leafEntry, index);
-            if (attrCatEntry.attrType == 0)
-                printf ("Leaf index value = %lf, attrVal = %lf, index = %d\n", leafEntry.attrVal.nVal, attrVal.nVal, index);
-            else
-                printf ("Leaf index value = %s, attrVal = %s, index = %d\n", leafEntry.attrVal.sVal, attrVal.sVal, index);
+            // if (attrCatEntry.attrType == 0)
+            //     printf ("Leaf index value = %lf, attrVal = %lf, index = %d\n", leafEntry.attrVal.nVal, attrVal.nVal, index);
+            // else
+            //     printf ("Leaf index value = %s, attrVal = %s, index = %d\n", leafEntry.attrVal.sVal, attrVal.sVal, index);
 
             // Comparison between leafEntry's attribute value and input attrVal
             int cmpVal = compareAttrs(leafEntry.attrVal, attrVal, attrCatEntry.attrType);
@@ -168,8 +168,8 @@ RecId BPlusTree::bPlusSearch(int relId, char attrName[ATTR_SIZE], Attribute attr
             ) {
                 IndexId searchIndex{block, index};
                 AttrCacheTable::setSearchIndex(relId, attrName, &searchIndex);
-                printf ("Found the entry at %d block and %d index\n", block, index);
-                printf ("Attribute present in block number = %d, slot number = %d\n", leafEntry.block, leafEntry.slot);
+                // printf ("Found the entry at %d block and %d index\n", block, index);
+                // printf ("Attribute present in block number = %d, slot number = %d\n", leafEntry.block, leafEntry.slot);
                 return RecId{leafEntry.block, leafEntry.slot};
             } 
             else if ((op == EQ || op == LE || op == LT) && cmpVal > 0) {
@@ -202,7 +202,7 @@ int BPlusTree::bPlusCreate(int relId, char attrName[ATTR_SIZE]) {
 
     if (attrCatEntry.rootBlock != -1)       // Index already exists
     {
-        printf ("Index already exists\n");
+        // printf ("Index already exists\n");
         return SUCCESS;
     }
 
